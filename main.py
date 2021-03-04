@@ -47,13 +47,16 @@ def task2():
     print("Hello")
     imageFiles = np.array(os.listdir(basePathForImages))
     file = basePathForImages + "1" + imageFileExtension
-    image = Image.open(file)
-    imageArray = np.array(image)
-    result = Image.fromarray(imageArray).resize((80,80))
 
-    plt.imshow(result)
-    plt.show()
+    for file in imageFiles:
+        file = basePathForImages + file
+        image = Image.open(file)
+        imageArray = np.array(image)
+        result = Image.fromarray(imageArray).resize((80,80))
+
+        plt.imshow(result)
+        plt.show()
 
 if __name__ == "__main__":
     task1()
-    # task2()
+    task2()
