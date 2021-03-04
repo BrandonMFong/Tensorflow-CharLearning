@@ -43,6 +43,9 @@ def task2():
     - Generating your own character dataset using ImageFont (Links to an external site.) in the Pillow package
 
     and train the network in Task 1 with the images.
+
+    https://www.kaggle.com/c/street-view-getting-started-with-julia/data
+        I think I need to get the set and targets from here
     """
     print("Hello")
     imageFiles = np.array(os.listdir(basePathForImages))
