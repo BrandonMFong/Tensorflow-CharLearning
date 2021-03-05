@@ -9,8 +9,8 @@ from sklearn.preprocessing import LabelBinarizer, LabelEncoder
 
 model = keras.models.Sequential()
 basePathForImages = "B:\\COLLEGE\\20_21\\Spring21\\CES514\\Labs\\Week6\\characters_train\\train\\"
-imageFileExtension = ".Bmp"
 trainLabelsFiles = "B:\\COLLEGE\\20_21\\Spring21\\CES514\\Labs\\Week6\\trainLabels.csv"
+imageFileExtension = ".Bmp"
 
 # Get Data
 labels = pd.read_csv(trainLabelsFiles)
@@ -20,7 +20,29 @@ labels["ID"] = labels["ID"].str.cat(labels['FileExt'])
 labels = labels.drop(columns=['FileExt'])
 encoder = LabelEncoder()
 labels["Target"] = encoder.fit_transform(labels["Class"])
-print(labels)
+
+# Get the pixels 
+limit = 10
+index = 0
+check = False
+pixels = np.empty([80,80,3])
+for file in labels["ID"]:
+    file = basePathForImages + file 
+    image = Image.open(file)
+    imageArray = np.array(image)
+    temp = Image.fromarray(imageArray).resize((80,80))
+    train = np.array(temp)
+
+    if check is False:
+        pixels = np.concatenate(([pixels], [train]))
+        check = True 
+    else:
+        pixels = np.concatenate((pixels, [train]))
+
+    if index == limit:
+        break 
+    else:
+        index += 1
 
 # print(len([name for name in os.listdir(basePathForImages) if os.path.isfile(name)]))
 
@@ -59,32 +81,23 @@ def task2():
 
     https://www.kaggle.com/c/street-view-getting-started-with-julia/data
         I think I need to get the set and targets from here
-    """
-    # print("Hello")
-    # imageFiles = np.array(os.listdir(basePathForImages))
-    # file = basePathForImages + "1" + imageFileExtension
-    # labels = pd.read_csv(trainLabelsFiles)
-    # labels['FileExt'] = imageFileExtension
-    # labels["ID"] = labels["ID"].astype(str)
-    # labels["ID"] = labels["ID"].str.cat(labels['FileExt']) 
-    # labels = labels.drop(columns=['FileExt'])
-    # encoder = LabelEncoder()
-    # labels["Target"] = encoder.fit_transform(labels["Class"])
-    # print(labels)
 
-    for file, target in labels[["ID","Target"]].itertuples(index=False):
-        file = basePathForImages + file
-        image = Image.open(file)
-        imageArray = np.array(image)
-        temp = Image.fromarray(imageArray).resize((80,80))
-        train = np.array(temp)
-        print(train)
-        model.fit(train,target)
-        break
+        array of images 
+    """
+    print()
+
+    # for file, target in labels[["ID","Target"]].itertuples(index=False):
+    #     file = basePathForImages + file
+    #     image = Image.open(file)
+    #     imageArray = np.array(image)
+    #     temp = Image.fromarray(imageArray).resize((80,80))
+    #     train = np.array(temp)
+    #     model.fit(train,target)
+    #     break
 
         # plt.imshow(result)
         # plt.show()
 
 if __name__ == "__main__":
-    task1()
+    # task1()
     task2()
