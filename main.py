@@ -20,9 +20,11 @@ labels["ID"] = labels["ID"].str.cat(labels['FileExt'])
 labels = labels.drop(columns=['FileExt'])
 encoder = LabelEncoder()
 labels["Target"] = encoder.fit_transform(labels["Class"])
+sizeToTrain = 5
+numEpochs = 2
 
 # Get the pixels 
-limit = 10
+limit = sizeToTrain
 index = 0
 check = False
 pixels = np.empty([80,80,3])
@@ -84,20 +86,8 @@ def task2():
 
         array of images 
     """
-    print()
-
-    # for file, target in labels[["ID","Target"]].itertuples(index=False):
-    #     file = basePathForImages + file
-    #     image = Image.open(file)
-    #     imageArray = np.array(image)
-    #     temp = Image.fromarray(imageArray).resize((80,80))
-    #     train = np.array(temp)
-    #     model.fit(train,target)
-    #     break
-
-        # plt.imshow(result)
-        # plt.show()
+    model.fit(pixels[:sizeToTrain], labels["Target"].loc[0:sizeToTrain-1], epochs=numEpochs)
 
 if __name__ == "__main__":
-    # task1()
+    task1()
     task2()
