@@ -6,11 +6,15 @@ from tensorflow import keras
 from PIL import Image 
 import os, os.path
 from sklearn.preprocessing import LabelBinarizer, LabelEncoder
+from tensorflow.keras import activations
+from tensorflow.keras.utils import to_categorical
 
 model = keras.models.Sequential()
 basePathForImages = "B:\\COLLEGE\\20_21\\Spring21\\CES514\\Labs\\Week6\\characters_train\\train\\"
 trainLabelsFiles = "B:\\COLLEGE\\20_21\\Spring21\\CES514\\Labs\\Week6\\trainLabels.csv"
 imageFileExtension = ".Bmp"
+inputSize = [80,80,3]
+outputSize = (26*2) + 10
 
 # Get Data
 labels = pd.read_csv(trainLabelsFiles)
@@ -18,10 +22,12 @@ labels['FileExt'] = imageFileExtension
 labels["ID"] = labels["ID"].astype(str)
 labels["ID"] = labels["ID"].str.cat(labels['FileExt']) 
 labels = labels.drop(columns=['FileExt'])
+
 encoder = LabelEncoder()
 labels["Target"] = encoder.fit_transform(labels["Class"])
-sizeToTrain = 5
-numEpochs = 2
+
+sizeToTrain = 50
+numEpochs = 10
 
 # Get the pixels 
 limit = sizeToTrain
@@ -54,8 +60,6 @@ def task1():
 
     Prepare the code to train a convolutional neural network that takes input image of 80x80 and predicts which character they are, i.e. digits 0-9 and upper and lower case letters, a-z, A-Z.
     """
-    inputSize = [80,80,3]
-    outputSize = (26*2) + 10
     model.add(keras.layers.Input(shape=inputSize))
     model.add(keras.layers.Conv2D(filters=32, kernel_size=3, strides=1, padding="SAME", activation="relu"))
     model.add(keras.layers.MaxPool2D(pool_size=2))
@@ -63,9 +67,9 @@ def task1():
     model.add(keras.layers.MaxPool2D(pool_size=2))
     model.add(keras.layers.Flatten())
     model.add(keras.layers.Dense(100, activation="relu"))
-    model.add(keras.layers.Dense(outputSize, activation=None))
+    model.add(keras.layers.Dense(outputSize, activation=activations.softmax))
     model.summary()
-    model.compile(loss="mse", optimizer="adam", metrics=["accuracy"])
+    model.compile(loss="categorical_crossentropy", optimizer="adam", metrics=["accuracy"])
 
 def task2():
     """
@@ -86,7 +90,19 @@ def task2():
 
         array of images 
     """
-    model.fit(pixels[:sizeToTrain], labels["Target"].loc[0:sizeToTrain-1], epochs=numEpochs)
+    target = to_categorical(labels["Target"].loc[0:sizeToTrain-1], num_classes=outputSize)
+    # history = model.fit(pixels[:sizeToTrain], labels["Target"].loc[0:sizeToTrain-1], epochs=numEpochs)
+    history = model.fit(pixels[:sizeToTrain], target, epochs=numEpochs)
+
+    test = pixels[40:41]
+    prediction = model.predict(test)
+    
+    # print("Prediction:", np.argmax(prediction))
+    print("Prediction:", labels[labels["Target"] == np.argmax(prediction)]["Class"].iloc[0])
+    # print("Prediction:", labels[labels["Target"] == 36]["Class"].iloc[0])
+    # print(target)
+    # print(labels["Target"].loc[0:sizeToTrain-1])
+    # print(labels[labels["Target"] == 36]["Class"].iloc[0])
 
 if __name__ == "__main__":
     task1()
