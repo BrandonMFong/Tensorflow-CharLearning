@@ -15,6 +15,8 @@ trainLabelsFiles = "B:\\COLLEGE\\20_21\\Spring21\\CES514\\Labs\\Week6\\trainLabe
 imageFileExtension = ".Bmp"
 inputSize = [80,80,3]
 outputSize = (26*2) + 10
+sizeToTrain = 50
+numEpochs = 10
 
 # Get Data
 labels = pd.read_csv(trainLabelsFiles)
@@ -22,12 +24,8 @@ labels['FileExt'] = imageFileExtension
 labels["ID"] = labels["ID"].astype(str)
 labels["ID"] = labels["ID"].str.cat(labels['FileExt']) 
 labels = labels.drop(columns=['FileExt'])
-
 encoder = LabelEncoder()
 labels["Target"] = encoder.fit_transform(labels["Class"])
-
-sizeToTrain = 50
-numEpochs = 10
 
 # Get the pixels 
 limit = sizeToTrain
@@ -90,19 +88,33 @@ def task2():
 
         array of images 
     """
+    
     target = to_categorical(labels["Target"].loc[0:sizeToTrain-1], num_classes=outputSize)
     # history = model.fit(pixels[:sizeToTrain], labels["Target"].loc[0:sizeToTrain-1], epochs=numEpochs)
     history = model.fit(pixels[:sizeToTrain], target, epochs=numEpochs)
 
-    test = pixels[40:41]
+    randNum = np.random.randint(0,sizeToTrain)
+
+    test = pixels[randNum:randNum+1]
     prediction = model.predict(test)
     
-    # print("Prediction:", np.argmax(prediction))
-    print("Prediction:", labels[labels["Target"] == np.argmax(prediction)]["Class"].iloc[0])
-    # print("Prediction:", labels[labels["Target"] == 36]["Class"].iloc[0])
-    # print(target)
-    # print(labels["Target"].loc[0:sizeToTrain-1])
-    # print(labels[labels["Target"] == 36]["Class"].iloc[0])
+    # Didn't have time to check but I think I am indexing incorrectly
+    # Might be out of bounds
+    try:
+        value = labels[labels["Target"] == np.argmax(prediction)]["Class"].loc[randNum]
+        file = labels[labels["Target"] == np.argmax(prediction)]["ID"].loc[randNum]
+        print("Prediction:", value)
+
+        file = basePathForImages + file
+        print(file)
+        image = Image.open(file)
+        imageArray = np.array(image)
+        img = Image.fromarray(imageArray).resize((80,80))
+        imageToShow = np.array(img)
+        plt.imshow(imageToShow)
+        plt.show()
+    except:
+        print("Something bad happened.  Please run again")
 
 if __name__ == "__main__":
     task1()
