@@ -12,6 +12,16 @@ basePathForImages = "B:\\COLLEGE\\20_21\\Spring21\\CES514\\Labs\\Week6\\characte
 imageFileExtension = ".Bmp"
 trainLabelsFiles = "B:\\COLLEGE\\20_21\\Spring21\\CES514\\Labs\\Week6\\trainLabels.csv"
 
+# Get Data
+labels = pd.read_csv(trainLabelsFiles)
+labels['FileExt'] = imageFileExtension
+labels["ID"] = labels["ID"].astype(str)
+labels["ID"] = labels["ID"].str.cat(labels['FileExt']) 
+labels = labels.drop(columns=['FileExt'])
+encoder = LabelEncoder()
+labels["Target"] = encoder.fit_transform(labels["Class"])
+print(labels)
+
 # print(len([name for name in os.listdir(basePathForImages) if os.path.isfile(name)]))
 
 def task1():
@@ -20,7 +30,7 @@ def task1():
 
     Prepare the code to train a convolutional neural network that takes input image of 80x80 and predicts which character they are, i.e. digits 0-9 and upper and lower case letters, a-z, A-Z.
     """
-    inputSize = [80,80,1]
+    inputSize = [80,80,3]
     outputSize = (26*2) + 10
     model.add(keras.layers.Input(shape=inputSize))
     model.add(keras.layers.Conv2D(filters=32, kernel_size=3, strides=1, padding="SAME", activation="relu"))
@@ -53,29 +63,28 @@ def task2():
     # print("Hello")
     # imageFiles = np.array(os.listdir(basePathForImages))
     # file = basePathForImages + "1" + imageFileExtension
-    labels = pd.read_csv(trainLabelsFiles)
-    labels['FileExt'] = imageFileExtension
-    labels["ID"] = labels["ID"].astype(str)
-    labels["ID"] = labels["ID"].str.cat(labels['FileExt']) 
-    labels = labels.drop(columns=['FileExt'])
+    # labels = pd.read_csv(trainLabelsFiles)
+    # labels['FileExt'] = imageFileExtension
+    # labels["ID"] = labels["ID"].astype(str)
+    # labels["ID"] = labels["ID"].str.cat(labels['FileExt']) 
+    # labels = labels.drop(columns=['FileExt'])
+    # encoder = LabelEncoder()
+    # labels["Target"] = encoder.fit_transform(labels["Class"])
+    # print(labels)
 
-    # Attempting to make the target usable 
-    encoder = LabelEncoder()
-    labels["Target"] = encoder.fit_transform(labels["Class"])
-    print(labels)
+    for file, target in labels[["ID","Target"]].itertuples(index=False):
+        file = basePathForImages + file
+        image = Image.open(file)
+        imageArray = np.array(image)
+        temp = Image.fromarray(imageArray).resize((80,80))
+        train = np.array(temp)
+        print(train)
+        model.fit(train,target)
+        break
 
-    # for file, target in labels[["ID","Class"]].itertuples(index=False):
-    #     file = basePathForImages + file
-    #     image = Image.open(file)
-    #     imageArray = np.array(image)
-    #     temp = Image.fromarray(imageArray).resize((80,80))
-    #     train = np.array(temp)
-    #     # model.fit(np.vstack(train),target)
-    #     break
-
-    #     # plt.imshow(result)
-    #     # plt.show()
+        # plt.imshow(result)
+        # plt.show()
 
 if __name__ == "__main__":
-    # task1()
+    task1()
     task2()
