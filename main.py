@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from tensorflow import keras
 from PIL import Image 
 import os, os.path
+from sklearn.preprocessing import LabelBinarizer, LabelEncoder
 
 model = keras.models.Sequential()
 basePathForImages = "B:\\COLLEGE\\20_21\\Spring21\\CES514\\Labs\\Week6\\characters_train\\train\\"
@@ -57,20 +58,24 @@ def task2():
     labels["ID"] = labels["ID"].astype(str)
     labels["ID"] = labels["ID"].str.cat(labels['FileExt']) 
     labels = labels.drop(columns=['FileExt'])
+
+    # Attempting to make the target usable 
+    encoder = LabelEncoder()
+    labels["Target"] = encoder.fit_transform(labels["Class"])
     print(labels)
 
-    for file, target in labels[["ID","Class"]].itertuples(index=False):
-        file = basePathForImages + file
-        image = Image.open(file)
-        imageArray = np.array(image)
-        temp = Image.fromarray(imageArray).resize((80,80))
-        train = np.array(temp)
-        # model.fit(np.vstack(train),target)
-        break
+    # for file, target in labels[["ID","Class"]].itertuples(index=False):
+    #     file = basePathForImages + file
+    #     image = Image.open(file)
+    #     imageArray = np.array(image)
+    #     temp = Image.fromarray(imageArray).resize((80,80))
+    #     train = np.array(temp)
+    #     # model.fit(np.vstack(train),target)
+    #     break
 
-        # plt.imshow(result)
-        # plt.show()
+    #     # plt.imshow(result)
+    #     # plt.show()
 
 if __name__ == "__main__":
-    task1()
+    # task1()
     task2()
